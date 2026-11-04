@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2937">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Заказы">
+<title>Заказы</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font:16px/1.35 system-ui,-apple-system,Roboto,sans-serif;background:#f3f4f6;color:#111827;padding-bottom:90px}
+header{position:sticky;top:0;z-index:5;background:#1f2937;color:#fff;padding:10px 12px 8px}
+.top{display:flex;align-items:center;gap:8px}
+h1{font-size:20px;margin:0;flex:1}
+button{font:inherit;cursor:pointer}
+.ic{background:none;border:0;color:#fff;font-size:26px;width:44px;height:44px}
+#q{width:100%;margin-top:8px;height:44px;border-radius:10px;border:0;padding:0 12px;font-size:16px}
+#chips{display:flex;gap:8px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid #d1d5db;position:sticky;top:107px;z-index:4}
+.chip{flex:none;border-radius:20px;padding:8px 14px;font-weight:600;border:2px solid;background:#fff;min-height:40px}
+#list{padding:12px;display:grid;gap:10px}
+.card{background:#fff;border-radius:12px;border-left:10px solid;padding:10px 12px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.model{font-weight:700;font-size:17px}
+.badge{color:#fff;font-weight:700;font-size:13px;padding:4px 10px;border-radius:12px;white-space:nowrap}
+.muted{color:#4b5563;font-size:14px}
+.issue{margin:4px 0}
+.next{margin-top:8px;width:100%;min-height:44px;border-radius:10px;border:2px solid;background:#fff;font-weight:700}
+.empty{text-align:center;color:#4b5563;padding:40px 16px}
+#add{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));background:#2563eb;color:#fff;border:0;border-radius:30px;height:56px;padding:0 22px;font-weight:700;font-size:17px;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10;display:none;align-items:flex-end}
+.ov.on{display:flex}
+.sheet{background:#fff;width:100%;max-height:94%;overflow:auto;border-radius:16px 16px 0 0;padding:14px 14px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet h2{margin:0 0 10px;font-size:19px}
+label{display:block;font-weight:600;margin:10px 0 4px;font-size:14px}
+input,textarea{width:100%;border:1px solid #9ca3af;border-radius:10px;padding:10px;font:inherit;min-height:46px}
+textarea{min-height:70px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#sts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st{min-height:48px;border-radius:10px;border:2px solid;background:#fff;font-weight:700}
+.acts{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:16px}
+.btn{min-height:50px;border-radius:12px;border:0;font-weight:700;font-size:17px}
+.save{background:#16a34a;color:#fff}
+.sec{background:#e5e7eb;color:#111827}
+.del{background:#fee2e2;color:#b91c1c;margin-top:10px;width:100%}
+.call{display:inline-block;margin-top:6px;font-weight:700;color:#2563eb}
+.warn{background:#fef3c7;color:#92400e;padding:10px 12px;font-size:14px;font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><h1>Заказы</h1><button class="ic" id="menu" aria-label="Меню">⋮</button></div>
+  <input id="q" type="search" placeholder="Поиск: модель, клиент, телефон, номер">
+</header>
+<div id="chips"></div>
+<div id="warn"></div>
+<div id="list"></div>
+<button id="add">+ Новый заказ</button>
+
+<div class="ov" id="ovForm"><div class="sheet">
+  <h2 id="fTitle">Новый заказ</h2>
+  <label>Модель телефона *</label><input id="fModel" placeholder="Например: Samsung A54, iPhone 12">
+  <label>Неисправность</label><textarea id="fIssue" placeholder="Что не работает"></textarea>
+  <label>Клиент</label><input id="fClient" placeholder="Имя">
+  <label>Телефон клиента</label><input id="fPhone" type="tel" inputmode="tel">
+  <label>IMEI / серийный номер</label><input id="fImei" inputmode="numeric">
+  <div class="g2">
+    <div><label>Цена</label><input id="fPrice" type="number" inputmode="decimal" min="0"></div>
+    <div><label>Предоплата</label><input id="fPre" type="number" inputmode="decimal" min="0"></div>
+  </div>
+  <label>Заметки</label><textarea id="fNotes" placeholder="Пароль, состояние корпуса, комплект"></textarea>
+  <label>Статус</label><div id="sts"></div>
+  <div id="callBox"></div>
+  <div class="acts"><button class="btn sec" id="fCancel">Закрыть</button><button class="btn save" id="fSave">Сохранить</button></div>
+  <button class="btn del" id="fDel">Удалить заказ</button>
+</div></div>
+
+<div class="ov" id="ovMenu"><div class="sheet">
+  <h2>Резервная копия</h2>
+  <p class="muted" id="bkInfo"></p>
+  <button class="btn save" id="bkOut" style="width:100%">Сохранить копию в файл</button>
+  <button class="btn sec" id="bkIn" style="width:100%;margin-top:10px">Загрузить копию из файла</button>
+  <input type="file" id="bkFile" accept=".json,application/json" hidden>
+  <button class="btn sec" id="mClose" style="width:100%;margin-top:10px">Закрыть</button>
+</div></div>
+
+<script>
+const ST=[
+ {k:'new',n:'Принят',c:'#2563eb'},
+ {k:'diag',n:'Диагностика',c:'#7c3aed'},
+ {k:'parts',n:'Ждёт запчасть',c:'#ea580c'},
+ {k:'fix',n:'В ремонте',c:'#a16207'},
+ {k:'ready',n:'Готов',c:'#16a34a'},
+ {k:'done',n:'Выдан',c:'#6b7280'},
+ {k:'cancel',n:'Отказ',c:'#dc2626'}
+];
+const NEXT={new:'diag',diag:'fix',parts:'fix',fix:'ready',ready:'done'};
+const S=k=>ST.find(s=>s.k===k);
+const $=s=>document.querySelector(s);
+const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){alert('Не удалось сохранить данные. Освободите память телефона.')}}};
+let orders=ls.get('orders',[]);
+let counter=ls.get('counter',orders.reduce((m,o)=>Math.max(m,o.num||0),0));
+let filter='active',q='',cur=null,selSt='new';
+const save=()=>{ls.set('orders',orders);ls.set('counter',counter)};
+const fmtD=t=>new Date(t).toLocaleDateString('ru-RU');
+const num=v=>parseFloat(v)||0;
+
+function render(){
+  const cnt={};ST.forEach(s=>cnt[s.k]=0);orders.forEach(o=>cnt[o.status]=(cnt[o.status]||0)+1);
+  const act=orders.filter(o=>o.status!=='done'&&o.status!=='cancel').length;
+  const chips=[{k:'active',n:'Активные',c:'#111827',x:act},{k:'all',n:'Все',c:'#111827',x:orders.length}]
+    .concat(ST.map(s=>({k:s.k,n:s.n,c:s.c,x:cnt[s.k]})));
+  $('#chips').innerHTML=chips.map(c=>{
+    const on=filter===c.k;
+    return `<button class="chip" data-f="${c.k}" style="border-color:${c.c};background:${on?c.c:'#fff'};color:${on?'#fff':c.c}">${c.n} ${c.x}</button>`}).join('');
+  const t=q.trim().toLowerCase();
+  let list=orders.filter(o=>{
+    if(filter==='active'&&(o.status==='done'||o.status==='cancel'))return false;
+    if(filter!=='active'&&filter!=='all'&&o.status!==filter)return false;
+    if(!t)return true;
+    return [o.num,o.model,o.client,o.phone,o.imei,o.issue].join(' ').toLowerCase().includes(t)});
+  list.sort((a,b)=>b.updated-a.updated);
+  $('#list').innerHTML=list.length?list.map(o=>{
+    const s=S(o.status),rest=o.price>0?o.price-(o.prepaid||0):0,nx=NEXT[o.status]&&S(NEXT[o.status]);
+    return `<div class="card" data-id="${o.id}" style="border-color:${s.c}">
+      <div class="row"><div class="model">№${o.num} ${esc(o.model)}</div><span class="badge" style="background:${s.c}">${s.n}</span></div>
+      <div class="muted">${esc(o.client)}${o.client&&o.phone?' · ':''}${esc(o.phone)}</div>
+      <div class="issue">${esc(o.issue)}</div>
+      <div class="muted">Принят ${fmtD(o.created)}${o.price>0?` · Цена ${o.price}`:''}${rest>0&&o.status!=='done'?` · <b>К оплате ${rest}</b>`:''}</div>
+      ${nx?`<button class="next" data-next="${o.id}" style="border-color:${nx.c};color:${nx.c}">Далее: ${nx.n}</button>`:''}
+    </div>`}).join(''):'<div class="empty">Здесь пока пусто.<br>Нажмите «+ Новый заказ».</div>';
+  const lb=ls.get('lastBackup',0),old=!lb||Date.now()-lb>7*864e5;
+  $('#warn').innerHTML=orders.length&&old?'<div class="warn">Давно не было резервной копии. Откройте меню ⋮ и сохраните копию.</div>':'';
+}
+
+function openForm(id){
+  cur=id?orders.find(o=>o.id===id):null;
+  const o=cur||{};
+  $('#fTitle').textContent=cur?`Заказ №${o.num}`:'Новый заказ';
+  $('#fModel').value=o.model||'';$('#fIssue').value=o.issue||'';$('#fClient').value=o.client||'';
+  $('#fPhone').value=o.phone||'';$('#fImei').value=o.imei||'';
+  $('#fPrice').value=o.price||'';$('#fPre').value=o.prepaid||'';$('#fNotes').value=o.notes||'';
+  selSt=o.status||'new';drawSt();
+  $('#callBox').innerHTML=o.phone?`<a class="call" href="tel:${esc(o.phone)}">Позвонить клиенту: ${esc(o.phone)}</a>`:'';
+  $('#fDel').style.display=cur?'block':'none';
+  $('#ovForm').classList.add('on');
+}
+function drawSt(){
+  $('#sts').innerHTML=ST.map(s=>`<button class="st" data-s="${s.k}" style="border-color:${s.c};background:${selSt===s.k?s.c:'#fff'};color:${selSt===s.k?'#fff':s.c}">${s.n}</button>`).join('');
+}
+function saveForm(){
+  const model=$('#fModel').value.trim();
+  if(!model){alert('Укажите модель телефона');$('#fModel').focus();return}
+  const d={model,issue:$('#fIssue').value.trim(),client:$('#fClient').value.trim(),phone:$('#fPhone').value.trim(),
+    imei:$('#fImei').value.trim(),price:num($('#fPrice').value),prepaid:num($('#fPre').value),
+    notes:$('#fNotes').value.trim(),status:selSt,updated:Date.now()};
+  if(cur)Object.assign(cur,d);
+  else orders.push(Object.assign({id:'o'+Date.now(),num:++counter,created:Date.now()},d));
+  save();$('#ovForm').classList.remove('on');render();
+}
+
+$('#chips').onclick=e=>{const b=e.target.closest('[data-f]');if(b){filter=b.dataset.f;render()}};
+$('#list').onclick=e=>{
+  const n=e.target.closest('[data-next]');
+  if(n){const o=orders.find(x=>x.id===n.dataset.next);o.status=NEXT[o.status];o.updated=Date.now();save();render();return}
+  const c=e.target.closest('[data-id]');if(c)openForm(c.dataset.id)};
+$('#q').oninput=e=>{q=e.target.value;render()};
+$('#add').onclick=()=>openForm(null);
+$('#sts').onclick=e=>{const b=e.target.closest('[data-s]');if(b){selSt=b.dataset.s;drawSt()}};
+$('#fSave').onclick=saveForm;
+$('#fCancel').onclick=()=>$('#ovForm').classList.remove('on');
+$('#fDel').onclick=()=>{if(confirm('Удалить заказ №'+cur.num+'? Это нельзя отменить.')){orders=orders.filter(o=>o!==cur);save();$('#ovForm').classList.remove('on');render()}};
+
+$('#menu').onclick=()=>{const lb=ls.get('lastBackup',0);
+  $('#bkInfo').textContent=(lb?'Последняя копия: '+fmtD(lb)+'. ':'Копий ещё не было. ')+'Заказов в памяти: '+orders.length+'. Храните файл копии в надёжном месте (облако, компьютер).';
+  $('#ovMenu').classList.add('on')};
+$('#mClose').onclick=()=>$('#ovMenu').classList.remove('on');
+$('#bkOut').onclick=()=>{
+  const blob=new Blob([JSON.stringify({counter,orders},null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='zakazy-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  ls.set('lastBackup',Date.now());render();$('#bkInfo').textContent='Копия сохранена в файл.'};
+$('#bkIn').onclick=()=>$('#bkFile').click();
+$('#bkFile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);if(!Array.isArray(d.orders))throw 0;
+    if(!confirm('Заменить текущие заказы ('+orders.length+') на копию ('+d.orders.length+')?'))return;
+    orders=d.orders;counter=d.counter||orders.reduce((m,o)=>Math.max(m,o.num||0),0);
+    save();$('#ovMenu').classList.remove('on');render();
+  }catch(x){alert('Файл не похож на копию заказов.')}};
+  r.readAsText(f);e.target.value=''};
+
+render();
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
